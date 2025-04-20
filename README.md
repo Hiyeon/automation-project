@@ -7,6 +7,6 @@
 
 ## 2. TechCrunch 뉴스 요약본 Slack으로 보내기 자동화
 - **Workflow:** [2_techcrunch2slack.json](./2_techcrunch2slack.json)
-- **TechCrunch 링크:** [TechCrunch AI 카테고리 RSS](https://techcrunch.com/category/artificial-intelligence/feed)
+- **TechCrunch 링크:** [TechCrunch AI 카테고리](https://techcrunch.com/category/artificial-intelligence)
 - **내용:** n8n과 Google Gemini API를 활용하여 TechCrunch의 최신 AI 뉴스 10건을 요약하고, 포맷된 Slack Block Kit 메시지로 지정 채널에 자동 전송.
 - **참고 링크:** [클로드 MCP로 안 되던 거, n8n으로 뚫었습니다! (커스텀 툴 구축 포함)](https://youtu.be/eOS1TLqA4tY?si=OMCEugfmviha8rLz)

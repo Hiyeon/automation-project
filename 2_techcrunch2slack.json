@@ -1,0 +1,285 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "71735018-6688-483a-b5c5-cc2ee1f6e09e",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "url": "https://techcrunch.com/category/artificial-intelligence/feed",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.1,
+      "position": [
+        220,
+        0
+      ],
+      "id": "d8fdeada-0263-4f0e-97a2-a0483725a341",
+      "name": "RSS Read"
+    },
+    {
+      "parameters": {
+        "maxItems": 10
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        440,
+        0
+      ],
+      "id": "af3c23ac-c76a-479e-957c-dd733e158cc0",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "title"
+            },
+            {
+              "fieldToAggregate": "link"
+            },
+            {
+              "fieldToAggregate": "content"
+            },
+            {
+              "fieldToAggregate": "contentSnippet"
+            },
+            {
+              "fieldToAggregate": "categories"
+            },
+            {
+              "fieldToAggregate": "isoDate"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        660,
+        0
+      ],
+      "id": "f8167925-d0d0-4830-92e6-eada16923721",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "You are a professional news summarizer and formatter for Slack.  You only return formatted Slack Block Kit JSON messages.   Do not hallucinate. Only use the data provided by the user.   Translate titles and summaries into Korean, but keep links and tags in original form.   Dates must be shown in YYYY-MM-DD format.    Output must include: - Article title (in Korean, bold) - Date - Tags (as comma-separated string or Slack inline list) - Summary (in Korean) - Link (clickable)  Format each article as a Slack block section. Group all article blocks into one `blocks` array. Do not include extra text outside the `blocks` array.",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "type": "HumanMessagePromptTemplate",
+              "message": "=Here are 10 news articles. Please summarize and format them as Slack messages.\n\nEach article contains:\n- `title`: {{ $json.title }}\n- `content`: {{ $json.content }}\n- `contentSnippet`: {{ $json.contentSnippet }}\n- `tags`: {{ $json.categories }}\n- `date`: {{ $json.isoDate }}\n- `link`: {{ $json.link }}\n\nFor each:\n1. Translate the title and content summary into Korean\n2. Format the summary in 3-5 lines\n3. Use `date` in `YYYY-MM-DD` format\n4. Format tags as comma-separated or inline list\n5. Finally, create a Slack Block section like this:\n\n{\n  \"\"blocks\"\": [\n    {\n      \"\"type\"\": \"\"header\"\",\n      \"\"text\"\": {\n        \"\"type\"\": \"\"plain_text\"\",\n        \"\"text\"\": \"\"📢 오늘의 AI 뉴스 요약 (2025-04-16)\"\",\n        \"\"emoji\"\": true\n      }\n    },\n    {\n      \"\"type\"\": \"\"divider\"\"\n    },\n    {\n      \"\"type\"\": \"\"section\"\",\n      \"\"text\"\": {\n        \"\"type\"\": \"\"mrkdwn\"\",\n        \"\"text\"\": \"\"*🧠 GPT-4.1 모델 시리즈 발표*\\n🗓️ 2025-04-14 ｜ 🏷️ AI, OpenAI, GPT-4.1\\n오픈AI가 새로운 GPT-4.1 모델을 공개했습니다. 이번 버전은 성능 개선과 보안 제어 기능 강화에 중점을 두고 있으며, Azure Foundry 플랫폼에서 우선적으로 출시됩니다.\\n🔗 <https://azure.microsoft.com/en-us/blog/announcing-the-gpt-4-1-model-series-for-azure-ai-foundry-developers/>\"\"\n      }\n    },\n    {\n      \"\"type\"\": \"\"section\"\",\n      \"\"text\"\": {\n        \"\"type\"\": \"\"mrkdwn\"\",\n        \"\"text\"\": \"\"*🚀 Anthropic, AWS 고객 전담 AI 팀 구성*\\n🗓️ 2025-04-15 ｜ 🏷️ AI, Anthropic, AWS\\nAnthropic이 AWS 고객을 위한 전담 팀을 조직하여 Claude 기반 AI 솔루션 확산을 지원합니다. 이 팀은 기업 고객을 대상으로 도입 가속화를 목표로 합니다.\\n🔗 <https://techcrunch.com/2025/04/15/anthropic-forms-a-new-team-to-grow-its-aws-business/>\"\"\n      }\n    },\n    {\n      \"\"type\"\": \"\"section\"\",\n      \"\"text\"\": {\n        \"\"type\"\": \"\"mrkdwn\"\",\n        \"\"text\"\": \"\"*🎙️ OpenAI, Context.ai 인수*\\n🗓️ 2025-04-15 ｜ 🏷️ AI, OpenAI, acquihire\\nOpenAI는 AI 모델 평가 플랫폼인 Context.ai 팀을 인수했습니다. 이로써 OpenAI는 고성능 AI 평가 시스템 내재화를 강화하게 됩니다.\\n🔗 <https://techcrunch.com/2025/04/15/openai-hires-team-behind-gv-backed-ai-eval-platform-context-ai/>\"\"\n      }\n    }\n\n    // ✨ You must return exactly 10 articles in total, following this format\n    // This example only includes 3 for demonstration purposes\n  ]\n}"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.6,
+      "position": [
+        880,
+        0
+      ],
+      "id": "db2d3f83-70e0-4002-89e6-1386f1add909",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-1.5-flash-8b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        840,
+        220
+      ],
+      "id": "a3310532-8fda-47a0-b931-5c490f317833",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "J6gQwqtvH4Z7fMp7",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C08P08Z826N",
+          "mode": "list",
+          "cachedResultName": "ai-news"
+        },
+        "messageType": "block",
+        "blocksUi": "={{ $json.output }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1256,
+        0
+      ],
+      "id": "58276886-4506-4fea-8457-b373cc338a9d",
+      "name": "Slack",
+      "webhookId": "5bfeaa47-2227-4217-82db-f835409360e2",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "k7pOFGHgRQ5EYYjJ",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"blocks\": [\n    {\n      \"type\": \"header\",\n      \"text\": {\n        \"type\": \"plain_text\",\n        \"text\": \"📢 오늘의 AI 뉴스 요약 (2025-04-16)\",\n        \"emoji\": true\n      }\n    },\n    {\n      \"type\": \"divider\"\n    },\n    {\n      \"type\": \"section\",\n      \"text\": {\n        \"type\": \"mrkdwn\",\n        \"text\": \"*🧠 GPT-4.1 모델 시리즈 발표*\\n🗓️ 2025-04-14 ｜ 🏷️ AI, OpenAI, GPT-4.1\\n오픈AI가 새로운 GPT-4.1 모델을 공개했습니다. 이번 버전은 성능 개선과 보안 제어 기능 강화에 중점을 두고 있으며, Azure Foundry 플랫폼에서 우선적으로 출시됩니다.\\n🔗 <https://azure.microsoft.com/en-us/blog/announcing-the-gpt-4-1-model-series-for-azure-ai-foundry-developers/>\"\n      }\n    },\n    {\n      \"type\": \"section\",\n      \"text\": {\n        \"type\": \"mrkdwn\",\n        \"text\": \"*🚀 Anthropic, AWS 고객 전담 AI 팀 구성*\\n🗓️ 2025-04-15 ｜ 🏷️ AI, Anthropic, AWS\\nAnthropic이 AWS 고객을 위한 전담 팀을 조직하여 Claude 기반 AI 솔루션 확산을 지원합니다. 이 팀은 기업 고객을 대상으로 도입 가속화를 목표로 합니다.\\n🔗 <https://techcrunch.com/2025/04/15/anthropic-forms-a-new-team-to-grow-its-aws-business/>\"\n      }\n    },\n    {\n      \"type\": \"section\",\n      \"text\": {\n        \"type\": \"mrkdwn\",\n        \"text\": \"*🎙️ OpenAI, Context.ai 인수*\\n🗓️ 2025-04-15 ｜ 🏷️ AI, OpenAI, acquihire\\nOpenAI는 AI 모델 평가 플랫폼인 Context.ai 팀을 인수했습니다. 이로써 OpenAI는 고성능 AI 평가 시스템 내재화를 강화하게 됩니다.\\n🔗 <https://techcrunch.com/2025/04/15/openai-hires-team-behind-gv-backed-ai-eval-platform-context-ai/>\"\n      }\n    }\n  ]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        1100,
+        220
+      ],
+      "id": "3e9610f2-5576-487b-a552-6c164922b031",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 10
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        200
+      ],
+      "id": "7f322e4c-d4f1-4e50-b097-b6113f769899",
+      "name": "Schedule Trigger"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "RSS Read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Read": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "RSS Read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "05aba7c1-88d5-4bc0-aaee-5fae56822e2f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "66184b6dd761e8caa14385547752d8d05ff461aa90b66d4481abe9b8d22bc6b5"
+  },
+  "id": "pcEzpGueRSBPFKfo",
+  "tags": []
+}
